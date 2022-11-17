@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QtMath>
+#include <QElapsedTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -90,6 +91,7 @@ void MainWindow::paintEvent(QPaintEvent *){
 
     QVector<QPoint> line;
     QVector<QVector<QPoint>> circle;
+
     switch(algorithm)
     {
         case STEP_BY_STEP:
@@ -114,7 +116,7 @@ void MainWindow::paintEvent(QPaintEvent *){
             p.drawLine(pix.width()*(0.5+stp*line[i-1].x()),pix.height()*(0.5-stp*line[i-1].y()),pix.width()*(0.5+stp*line[i].x()),pix.height()*(0.5-stp*line[i].y()));
         }
     else{
-        for(int i = 0; i<8;i++)
+        for(int i = 0; i<4;i++)
         {
             for(int j = 1; j<circle[i].size();j++)
             {
@@ -206,47 +208,58 @@ QVector<QPoint> MainWindow::DDALine(double x0, double y0, double x1, double y1){
 }
 
 QVector<QVector<QPoint>> MainWindow::BresenhamCircle(double x0, double y0, double R){
-    int x = 0;
-    int y = R;
-    int E = 3-2*R;
 
-    QVector<QVector<QPoint>> circle(8);
-    circle[1].push_back(QPoint(x+x0,y+y0));
-    circle[6].push_back(QPoint(x+x0,-y+y0));
-    circle[2].push_back(QPoint(-x+x0,y+y0));
-    circle[4].push_back(QPoint(-x+x0,-y+y0));
-    circle[0].push_back(QPoint(y+x0,x+y0));
-    circle[7].push_back(QPoint(y+x0,-x+y0));
-    circle[3].push_back(QPoint(-y+x0,x+y0));
-    circle[5].push_back(QPoint(-y+x0,-x+y0));
-    while(x<y)
-    {
-        if(E>=0)
-        {
-            E+=+4*(x-y)+10;
-            x++;
-            y--;
+    QVector<QVector<QPoint>> circle(4);
+    int x = 0;
+        int y = R;
+        int delta = 1 - 2 * R;
+        int error = 0;
+        while(y >= 0) {
+            circle[0].push_back(QPoint(x0 + x, y0 + y));
+            circle[1].push_back(QPoint(x0 + x, y0 - y));
+            circle[2].push_back(QPoint(x0 - x, y0 + y));
+            circle[3].push_back(QPoint(x0 - x, y0 - y));
+            error = 2 * (delta + y) - 1;
+            if(delta < 0 && error <= 0) {
+                ++x;
+                delta += 2 * x + 1;
+                continue;
+            }
+            error = 2 * (delta - x) - 1;
+            if(delta > 0 && error > 0) {
+                --y;
+                delta += 1 - 2 * y;
+                continue;
+            }
+            ++x;
+            delta += 2 * (x - y);
+            --y;
         }
-        else
-        {
-            E+=4*x+6;
-            x++;
-        }
-        circle[1].push_back(QPoint(x+x0,y+y0));
-        circle[6].push_back(QPoint(x+x0,-y+y0));
-        circle[2].push_back(QPoint(-x+x0,y+y0));
-        circle[4].push_back(QPoint(-x+x0,-y+y0));
-        circle[0].push_back(QPoint(y+x0,x+y0));
-        circle[7].push_back(QPoint(y+x0,-x+y0));
-        circle[3].push_back(QPoint(-y+x0,x+y0));
-        circle[5].push_back(QPoint(-y+x0,-x+y0));
-    }
     return circle;
+}
+
+void MainWindow::checkSpeed(){
+    double x0 = ui->doubleSpinBox->value(),x1 = ui->doubleSpinBox_2->value(),
+            y0 = ui->doubleSpinBox_3->value(), y1=ui->doubleSpinBox_4->value();
+    QElapsedTimer timer;
+    timer.start();
+    StepByStepLine(x0,y0,x1,y1);
+    qDebug() << "stepbystep:" << timer.nsecsElapsed();
+    timer.restart();
+    BresenhamLine(x0,y0,x1,y1);
+    qDebug() << "bresenham" << timer.nsecsElapsed();
+    timer.restart();
+    DDALine(x0,y0,x1,y1);
+    qDebug() << "DDA" << timer.nsecsElapsed();
+    timer.restart();
+    BresenhamCircle(x0,y0,x1);
+    qDebug() << "circle" <<  timer.nsecsElapsed();
 
 }
 
 
 void MainWindow::recalc(){
+     checkSpeed();
      update();
 }
 

@@ -42,6 +42,7 @@ private:
     void swap(double &a,double&b);
     void recalc();
     void drawGraph();
+    void checkSpeed();
 
     QActionGroup algorithms;
     Algorithm algorithm;
