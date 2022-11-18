@@ -52,5 +52,6 @@ private:
     QVector<QPoint> BresenhamLine(double x0, double y0, double x1, double y1);
     QVector<QPoint> DDALine(double x0, double y0, double x1, double y1);
     QVector<QVector<QPoint>> BresenhamCircle(double x0, double y0,double R);
+    void InitializaAlgorithms();
 };
 #endif // MAINWINDOW_H

@@ -11,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    InitializaAlgorithms();
+}
+
+void MainWindow::InitializaAlgorithms()
+{
     algorithms.addAction(ui->a_StepByStep);
     algorithms.addAction(ui->a_Bresenham);
     algorithms.addAction(ui->a_DDA);
@@ -33,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::setAlgorithm(){
     ui->doubleSpinBox_4->setVisible(true);
+    ui->label_5->setVisible(true);
+    ui->label_4->setText("x2");
     if(sender() == ui->a_StepByStep)
         algorithm = STEP_BY_STEP;
     else if(sender() == ui->a_Bresenham)
@@ -42,6 +49,8 @@ void MainWindow::setAlgorithm(){
     else{
         algorithm = BRESENHAM_CIRCLE;
         ui->doubleSpinBox_4->setVisible(false);
+        ui->label_5->setVisible(true);
+        ui->label_4->setText("R");
     }
 }
 
@@ -259,7 +268,7 @@ void MainWindow::checkSpeed(){
 
 
 void MainWindow::recalc(){
-     checkSpeed();
+     //checkSpeed();
      update();
 }
 
