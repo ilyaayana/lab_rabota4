@@ -36,6 +36,8 @@ private slots:
 
     void setAlgorithm();
 
+    void on_comboBox_activated(int index);
+
 private:
     Ui::MainWindow *ui;
     void paintEvent(QPaintEvent*);
@@ -43,6 +45,8 @@ private:
     void recalc();
     void drawGraph();
     void checkSpeed();
+
+    int scale;
 
     QActionGroup algorithms;
     Algorithm algorithm;

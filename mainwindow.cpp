@@ -7,7 +7,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow),algorithms(this)
+    , ui(new Ui::MainWindow),algorithms(this),scale(10)
 {
     ui->setupUi(this);
 
@@ -49,7 +49,7 @@ void MainWindow::setAlgorithm(){
     else{
         algorithm = BRESENHAM_CIRCLE;
         ui->doubleSpinBox_4->setVisible(false);
-        ui->label_5->setVisible(true);
+        ui->label_5->setVisible(false);
         ui->label_4->setText("R");
     }
 }
@@ -70,20 +70,14 @@ void MainWindow::paintEvent(QPaintEvent *){
     double x0 = ui->doubleSpinBox->value(),x1 = ui->doubleSpinBox_2->value(),
             y0 = ui->doubleSpinBox_3->value(), y1=ui->doubleSpinBox_4->value();
 
-    QPixmap pix(1080,1080);
+    QPixmap pix(2056,2056);
     pix.fill(Qt::white);
     QPainter p(&pix);
     p.setBrush(Qt::black);
 
-    int max = qMax(abs(x0),qMax(abs(x1),qMax(abs(y0),abs(y1))));
-    int range = 10;
-    while(range <= max){
-        range*=2;
-    }
-
 
     double step = 0.9/20;
-    double stp = 0.9/(2*range);
+    double stp = 0.9/(2*scale);
 
     p.drawLine(pix.width()*0.05,pix.height()/2,pix.width()*0.95,pix.height()/2);
     p.drawLine(pix.width()/2,pix.height()*0.95,pix.width()/2,pix.height()*0.05);
@@ -92,11 +86,16 @@ void MainWindow::paintEvent(QPaintEvent *){
        p.setPen(QPen(Qt::black,1));
        p.drawLine(pix.width()*(0.05+step*i),pix.height()*0.05,pix.width()*(0.05+step*i),pix.height()*0.95);
        p.drawLine(pix.width()*0.05,pix.height()*(0.05+step*i),pix.width()*0.95,pix.height()*(0.05+step*i));
-       p.drawText(pix.width()*(0.04+step*i),pix.height()/1.90,QString::number(range/10*(i-10)));
+       p.drawText(pix.width()*(0.04+step*i),pix.height()/1.95,QString::number(scale/10*(i-10)));
        if(i!=10)
-          p.drawText(pix.width()/2.10,pix.height()*(0.955-step*i),QString::number(range/10*(i-10)));
+          p.drawText(pix.width()/2.03,pix.height()*(0.955-step*i),QString::number(scale/10*(i-10)));
 
     }
+    QFont font = p.font();
+    font.setPixelSize(18);
+    p.setFont(font);
+    p.drawText(pix.width()*0.515,pix.height()*0.06,"y");
+    p.drawText(pix.width()*0.94,pix.height()*0.515,"x");
 
     QVector<QPoint> line;
     QVector<QVector<QPoint>> circle;
@@ -294,5 +293,11 @@ void MainWindow::on_doubleSpinBox_3_editingFinished()
 void MainWindow::on_doubleSpinBox_4_editingFinished()
 {
     recalc();
+}
+
+
+void MainWindow::on_comboBox_activated(int index)
+{
+     scale = 10*qPow(2,index);
 }
 
