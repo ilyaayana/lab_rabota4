@@ -70,6 +70,9 @@ void MainWindow::paintEvent(QPaintEvent *){
     double x0 = ui->doubleSpinBox->value(),x1 = ui->doubleSpinBox_2->value(),
             y0 = ui->doubleSpinBox_3->value(), y1=ui->doubleSpinBox_4->value();
 
+    if(abs(x0) > scale|| abs(y0) > scale || abs(x1) > scale || abs(y1) > scale)
+        scale *=2;
+
     QPixmap pix(2056,2056);
     pix.fill(Qt::white);
     QPainter p(&pix);
@@ -81,7 +84,7 @@ void MainWindow::paintEvent(QPaintEvent *){
 
     p.drawLine(pix.width()*0.05,pix.height()/2,pix.width()*0.95,pix.height()/2);
     p.drawLine(pix.width()/2,pix.height()*0.95,pix.width()/2,pix.height()*0.05);
-    for(int i = 0; i < 20;i++)
+    for(int i = 0; i < 21;i++)
     {
        p.setPen(QPen(Qt::black,1));
        p.drawLine(pix.width()*(0.05+step*i),pix.height()*0.05,pix.width()*(0.05+step*i),pix.height()*0.95);
@@ -95,7 +98,7 @@ void MainWindow::paintEvent(QPaintEvent *){
     font.setPixelSize(18);
     p.setFont(font);
     p.drawText(pix.width()*0.515,pix.height()*0.06,"y");
-    p.drawText(pix.width()*0.94,pix.height()*0.515,"x");
+    p.drawText(pix.width()*0.94,pix.height()*0.52,"x");
 
     QVector<QPoint> line;
     QVector<QVector<QPoint>> circle;
@@ -116,12 +119,20 @@ void MainWindow::paintEvent(QPaintEvent *){
             break;
     }
 
-    p.setPen(QPen(Qt::black,3));
 
     if(algorithm !=BRESENHAM_CIRCLE)
         for(int i = 1; i<line.size();i++)
         {
+            p.setPen(QPen(Qt::black,3));
+            p.setOpacity(1);
             p.drawLine(pix.width()*(0.5+stp*line[i-1].x()),pix.height()*(0.5-stp*line[i-1].y()),pix.width()*(0.5+stp*line[i].x()),pix.height()*(0.5-stp*line[i].y()));
+            p.setPen(Qt::NoPen);
+            p.setBrush(Qt::gray);
+            p.setOpacity(0.2);
+            if(line[i].y()<line[i-1].y() && line[i].x()>line[i-1].x())
+            p.drawRect(pix.width()*(0.5+stp*line[i-1].x()),pix.height()*(0.5-stp*line[i-1].y()),pix.width()*stp,pix.height()*stp);
+            else
+            p.drawRect(pix.width()*(0.5+stp*line[i-1].x()),pix.height()*(0.5-stp*line[i].y()),pix.width()*stp,pix.height()*stp);
         }
     else{
         for(int i = 0; i<4;i++)
@@ -214,6 +225,32 @@ QVector<QPoint> MainWindow::DDALine(double x0, double y0, double x1, double y1){
 
     return line;
 }
+//QVector<QPoint> MainWindow::CastlePitway(double x0, double y0, double x1, double y1){
+//    bool steep = abs(y1-y0)>abs(x1-x0);
+//    if(steep){
+//        swap(x0,y0);
+//        swap(x1,y1);
+//    }
+//    if(x0>x1){
+//        swap(x0,x1);
+//        swap(y0,y1);
+//    }
+
+//    double y = y1;
+//    double x = y1-x1;
+//    QString m1 = "s", m2 = "d";
+//    while(x!=y){
+//        if(x>y){
+//            x -=y;
+//            m2 = m1+m2;
+//        }
+//        else{
+//            y = y-x;
+//            m1 = m2+m1;
+//        }
+//    }
+
+//}
 
 QVector<QVector<QPoint>> MainWindow::BresenhamCircle(double x0, double y0, double R){
 
@@ -267,7 +304,7 @@ void MainWindow::checkSpeed(){
 
 
 void MainWindow::recalc(){
-     //checkSpeed();
+     checkSpeed();
      update();
 }
 
